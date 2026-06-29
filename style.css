@@ -1,0 +1,378 @@
+:root {
+  --bg: #0a0a0b;
+  --panel: #111114;
+  --border: #1f1f23;
+  --text: #ffffff;
+  --text-dim: #e4e4e7;
+  --accent: #00bfff;
+  --accent-bright: #1e90ff;
+  --yellow: #ffd700;
+  --green: #00ff88;
+  --amber: #ffbf00;
+  --red: #ff4757;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  background: var(--bg);
+  color: var(--text);
+  padding: 2rem 1rem;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+header { text-align: center; margin-bottom: 2rem; }
+h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text); }
+header p { color: var(--text-dim); font-size: 1rem; }
+
+.last-updated {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--yellow);
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#search {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+#search:focus { outline: none; border-color: var(--accent-bright); }
+#search::placeholder { color: #71717a; }
+
+#refresh {
+  background: var(--accent-bright);
+  color: #000;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+#refresh:hover { background: var(--accent); }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.stat {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat.tier1 {
+  border-color: var(--yellow);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+}
+
+.stat .label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.stat .value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent-bright);
+}
+
+.stat.tier1 .value { color: var(--yellow); }
+
+.status {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-dim);
+  font-size: 1rem;
+}
+
+.status.error { color: var(--red); }
+
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 1.25rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.job-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s;
+}
+
+.job-card:hover { border-color: var(--accent-bright); }
+
+.job-header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.job-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  background: #1a1a1e;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.job-title-wrap { flex: 1; }
+.job-title { font-weight: 600; margin-bottom: 0.25rem; color: var(--text); }
+.job-company { color: var(--text-dim); font-size: 0.9rem; }
+
+.match-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.match-badge.high { color: var(--green); border-color: var(--green); background: rgba(0, 255, 136, 0.1); }
+.match-badge.med { color: var(--amber); border-color: var(--amber); background: rgba(255, 191, 0, 0.1); }
+.match-badge.low { color: var(--text-dim); border-color: var(--border); }
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  background: #1a1a1e;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.badge.remote { color: var(--green); background: rgba(0, 255, 136, 0.1); }
+.badge.tier1 { color: var(--yellow); background: rgba(255, 215, 0, 0.1); }
+
+.match-reasons {
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.match-reasons strong {
+  color: var(--yellow);
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.match-reasons ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.match-reasons li { color: var(--text); }
+.match-reasons li::before { content: "✓ "; color: var(--green); font-weight: 700; }
+
+.job-desc {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  max-height: 60px;
+  overflow: hidden;
+}
+
+.job-desc.expanded { max-height: none; }
+
+.desc-toggle {
+  background: none;
+  border: none;
+  color: var(--accent-bright);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+  margin-bottom: 1rem;
+  font-family: inherit;
+  font-weight: 600;
+}
+
+.desc-toggle:hover { text-decoration: underline; }
+
+.job-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.job-meta { font-size: 0.8rem; color: var(--text-dim); }
+
+.apply-btn {
+  background: var(--accent-bright);
+  color: #000;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.apply-btn:hover { background: var(--accent); }
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 3rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 768px) {
+  .jobs-grid { grid-template-columns: 1fr; }
+  .controls { flex-direction: column; }
+  footer { flex-direction: column; gap: 0.5rem; }
+}
+
+/* =======================================================
+   MOBILE RESPONSIVE - PBRCIM Applied to Viewports
+======================================================= */
+
+@media (max-width: 768px) {
+  body {
+    padding: 1rem 0.75rem;
+    font-size: 13px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .controls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  #search, #refresh {
+    width: 100%;
+    padding: 0.875rem 1rem;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .stat {
+    padding: 0.75rem;
+  }
+
+  .stat .value {
+    font-size: 1.5rem;
+  }
+
+  .jobs-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .job-card {
+    padding: 1.25rem;
+  }
+
+  .job-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .match-badge {
+    order: -1;
+    width: 100%;
+    text-align: center;
+  }
+
+  .job-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .apply-btn {
+    text-align: center;
+    padding: 0.75rem;
+  }
+
+  .badges {
+    gap: 0.4rem;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+  
+  h1 {
+    font-size: 1.25rem;
+  }
+}

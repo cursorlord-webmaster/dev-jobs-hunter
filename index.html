@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev-Jobs Hunter | CursorLord</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Dev-Jobs Hunter</h1>
+        <p>A Smart IT Jobs Extractor For Personal Use - Built By Usenobong | CursorLord</p>
+    </header>
+
+    <div class="controls">
+        <input type="text" id="search" placeholder="Search: React, RLHF, Prompt Engineer...">
+        <button id="refresh">Refresh Jobs</button>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            <span class="label">Total</span>
+            <span class="value" id="total-jobs">0</span>
+        </div>
+        <div class="stat">
+            <span class="label">Remote</span>
+            <span class="value" id="remote-jobs">0</span>
+        </div>
+        <div class="stat">
+            <span class="label">This Week</span>
+            <span class="value" id="today-jobs">0</span>
+        </div>
+        <div class="stat">
+            <span class="label">Tier 1: AI/RLHF</span>
+            <span class="value" id="tier1-jobs">0</span>
+        </div>
+    </div>
+
+    <div id="status" class="status">Initializing...</div>
+    <div id="jobs-grid" class="jobs-grid"></div>
+
+    <footer>
+        <span>© 2023–2026 CursorLord Systems</span>
+        <span>PBRCIM applied to careers</span>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
