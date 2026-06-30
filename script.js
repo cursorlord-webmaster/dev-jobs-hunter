@@ -150,14 +150,14 @@ function updateStats(jobs) {
 }
 
 async function fetchJobs() {
-  statusEl.textContent = 'Loading jobs...';
+  statusEl.textContent = 'Fetching live jobs from JSearch...';
   statusEl.className = 'status';
   statusEl.style.display = 'block';
   jobsGrid.innerHTML = '';
   
   try {
     const response = await fetch(API_URL);
-    if (!response.ok) throw new Error(`Failed to load jobs.json`);
+    if (!response.ok) throw new Error(`API Error ${response.status}`);
     
     let rawJobs = await response.json();
     
@@ -179,10 +179,14 @@ async function fetchJobs() {
     updateStats(allJobs);
     renderJobs(allJobs);
     
+    statusEl.textContent = `Loaded ${allJobs.length} live jobs`;
+    statusEl.className = 'status success';
+    
   } catch (err) {
     console.error('Fetch error:', err);
-    statusEl.textContent = `Error: ${err.message}. Run /cron/fetch-jobs to generate jobs.json first.`;
+    statusEl.textContent = `Error: ${err.message}. Check Vercel Functions logs.`;
     statusEl.className = 'status error';
+    jobsGrid.innerHTML = `<div class="error">Failed to load jobs from /api/jobs</div>`;
   }
 }
 
