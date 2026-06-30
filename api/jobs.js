@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
           num_pages: '1',
           date_posted: 'week',
           remote_jobs_only: 'true',
-          employment_types: 'FULLTIME,CONTRACTOR,INTERN'
+          employment_types: 'FULLTIME,CONTRACTOR'
         }
       });
       
