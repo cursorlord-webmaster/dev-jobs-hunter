@@ -3,12 +3,31 @@ const API_URL = '/api/jobs';
 
 const pilgrimProfile = {
   name: "Usenobong CursorLord",
-  skills: ["React", "TypeScript", "Next.js", "JavaScript", "HTML", "CSS", "Tailwind", "Technical Writing", "Code Review", "AI Training", "Prompt Engineering", "RLHF", "Developer Tools", "DevEx", "API Documentation"],
-  tier1Keywords: ["RLHF", "Prompt Engineer", "AI Trainer", "Code Reviewer", "Technical Writer", "AI Evaluator", "Data Annotation", "DevEx", "Developer Tools"],
-  tier2Keywords: ["React", "TypeScript", "Next.js", "Frontend", "UI Engineer", "Web Developer"],
+  skills: [
+    "React", "TypeScript", "Next.js", "JavaScript", "HTML", "CSS", "Tailwind", 
+    "Technical Writing", "Code Review", "AI Training", "Prompt Engineering", 
+    "RLHF", "Developer Tools", "DevEx", "API Documentation", "LLM Evaluator", 
+    "Data Annotation", "Technical QA", "Software QA", "AI Safety", 
+    "Human Feedback Specialist", "Solutions Engineer", "Technical Support Engineer"
+  ],
+  tier1Keywords: [
+    "RLHF", "Prompt Engineer", "AI Trainer", "Code Reviewer", "Technical Writer", 
+    "AI Evaluator", "Data Annotation", "DevEx", "Developer Tools", "AI Data Specialist",
+    "AI Code Reviewer", "LLM Evaluator", "AI Safety", "Human Feedback Specialist",
+    "Technical QA", "Software QA", "Solutions Engineer", "Technical Support Engineer"
+  ],
+  tier2Keywords: [
+    "React", "TypeScript", "Next.js", "Frontend", "UI Engineer", "Web Developer",
+    "Frontend Engineer", "JavaScript Developer", "Web Systems Engineer",
+    "Frontend Developer", "HTML", "CSS"
+  ],
   preferences: {
     remote: true,
-    employmentTypes: ["Full-time", "Contractor"]
+    worldwide: true,
+    nigeriaFriendly: true,
+    employmentTypes: ["Full-time", "Contractor"],
+    englishOnly: true,
+    recentlyPosted: true
   }
 };
 
