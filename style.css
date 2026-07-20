@@ -133,15 +133,22 @@ header p { color: var(--text-dim); font-size: 1rem; }
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .job-card:hover { border-color: var(--accent-bright); }
+
+/* PBRCIM Highlight Modifier Override */
+.job-card.high-match-border {
+  border-left: 5px solid var(--green);
+  box-shadow: 0 4px 15px rgba(0, 255, 136, 0.1);
+}
 
 .job-header {
   display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
+  align-items: center;
 }
 
 .job-logo {
@@ -157,18 +164,20 @@ header p { color: var(--text-dim); font-size: 1rem; }
 .job-title { font-weight: 600; margin-bottom: 0.25rem; color: var(--text); }
 .job-company { color: var(--text-dim); font-size: 0.9rem; }
 
+/* Refined Match Badges */
 .match-badge {
-  padding: 0.25rem 0.6rem;
+  padding: 6px 12px;
   border-radius: 4px;
   font-size: 0.8rem;
   font-weight: 700;
-  border: 1px solid;
+  text-transform: uppercase;
+  border: 1px solid transparent;
   white-space: nowrap;
 }
 
 .match-badge.high { color: var(--green); border-color: var(--green); background: rgba(0, 255, 136, 0.1); }
 .match-badge.med { color: var(--amber); border-color: var(--amber); background: rgba(255, 191, 0, 0.1); }
-.match-badge.low { color: var(--text-dim); border-color: var(--border); }
+.match-badge.low { color: var(--text-dim); border-color: var(--border); background: rgba(255, 255, 255, 0.02); }
 
 .badges {
   display: flex;
@@ -184,14 +193,16 @@ header p { color: var(--text-dim); font-size: 1rem; }
   background: #1a1a1e;
   color: var(--text-dim);
   font-weight: 600;
+  border: 1px solid var(--border);
 }
 
-.badge.remote { color: var(--green); background: rgba(0, 255, 136, 0.1); }
-.badge.tier1 { color: var(--yellow); background: rgba(255, 215, 0, 0.1); }
+.badge.remote { color: var(--green); background: rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.2); }
+.badge.tier1 { color: var(--yellow); background: rgba(255, 215, 0, 0.1); border-color: rgba(255, 215, 0, 0.2); }
 
+/* Breakdown Segment Controls */
 .match-reasons {
-  background: rgba(255, 215, 0, 0.05);
-  border: 1px solid rgba(255, 215, 0, 0.2);
+  background: rgba(255, 215, 0, 0.03);
+  border: 1px solid rgba(255, 215, 0, 0.15);
   border-radius: 6px;
   padding: 0.75rem;
   margin-bottom: 1rem;
@@ -204,17 +215,17 @@ header p { color: var(--text-dim); font-size: 1rem; }
   margin-bottom: 0.4rem;
   font-size: 0.75rem;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.match-reasons ul {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.explanation-flex span {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-dim);
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
 }
-
-.match-reasons li { color: var(--text); }
-.match-reasons li::before { content: "✓ "; color: var(--green); font-weight: 700; }
 
 .job-desc {
   color: var(--text-dim);
@@ -222,6 +233,7 @@ header p { color: var(--text-dim); font-size: 1rem; }
   margin-bottom: 1rem;
   max-height: 60px;
   overflow: hidden;
+  transition: max-height 0.2s ease-out;
 }
 
 .job-desc.expanded { max-height: none; }
@@ -259,6 +271,7 @@ header p { color: var(--text-dim); font-size: 1rem; }
   border-radius: 6px;
   font-weight: 700;
   font-size: 0.9rem;
+  transition: background 0.2s;
 }
 
 .apply-btn:hover { background: var(--accent); }
@@ -277,62 +290,29 @@ footer {
   margin-right: auto;
 }
 
-@media (max-width: 768px) {
-  .jobs-grid { grid-template-columns: 1fr; }
-  .controls { flex-direction: column; }
-  footer { flex-direction: column; gap: 0.5rem; }
-}
-
-/* =======================================================
-   MOBILE RESPONSIVE - PBRCIM Applied to Viewports
-======================================================= */
-
+/* Responsive Media Queries */
 @media (max-width: 768px) {
   body {
     padding: 1rem 0.75rem;
     font-size: 13px;
   }
 
-  h1 {
-    font-size: 1.5rem;
-  }
+  h1 { font-size: 1.5rem; }
 
-  .controls {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
+  .controls { flex-direction: column; gap: 0.75rem; }
 
-  #search, #refresh {
-    width: 100%;
-    padding: 0.875rem 1rem;
-  }
+  #search, #refresh { width: 100%; padding: 0.875rem 1rem; }
 
-  .stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
+  .stats { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
 
-  .stat {
-    padding: 0.75rem;
-  }
+  .stat { padding: 0.75rem; }
+  .stat .value { font-size: 1.5rem; }
 
-  .stat .value {
-    font-size: 1.5rem;
-  }
+  .jobs-grid { grid-template-columns: 1fr; gap: 1rem; }
 
-  .jobs-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
+  .job-card { padding: 1.25rem; }
 
-  .job-card {
-    padding: 1.25rem;
-  }
-
-  .job-header {
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
+  .job-header { flex-wrap: wrap; gap: 0.75rem; }
 
   .match-badge {
     order: -1;
@@ -340,39 +320,17 @@ footer {
     text-align: center;
   }
 
-  .job-footer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-  }
+  .job-footer { flex-direction: column; align-items: stretch; gap: 0.75rem; }
 
-  .apply-btn {
-    text-align: center;
-    padding: 0.75rem;
-  }
+  .apply-btn { text-align: center; padding: 0.75rem; }
 
-  .badges {
-    gap: 0.4rem;
-  }
+  .badges { gap: 0.4rem; }
+  .badge { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
 
-  .badge {
-    font-size: 0.7rem;
-    padding: 0.2rem 0.5rem;
-  }
-
-  footer {
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1.5rem 1rem;
-  }
+  footer { flex-direction: column; gap: 0.5rem; padding: 1.5rem 1rem; }
 }
 
 @media (max-width: 400px) {
-  .stats {
-    grid-template-columns: 1fr;
-  }
-  
-  h1 {
-    font-size: 1.25rem;
-  }
+  .stats { grid-template-columns: 1fr; }
+  h1 { font-size: 1.25rem; }
 }

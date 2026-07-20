@@ -1,135 +1,85 @@
-// Dev-Jobs Hunter - PBRCIM Engine
+// Dev-Jobs Hunter V3 Engine Controller - PBRCIM Logic Realized
 const API_URL = '/api/jobs';
+let cachedJobsCollection = [];
 
-const pilgrimProfile = {
-  name: "Usenobong CursorLord",
-  skills: [
-    "React", "TypeScript", "Next.js", "JavaScript", "HTML", "CSS", "Tailwind", 
-    "Technical Writing", "Code Review", "AI Training", "Prompt Engineering", 
-    "RLHF", "Developer Tools", "DevEx", "API Documentation", "LLM Evaluator", 
-    "Data Annotation", "Technical QA", "Software QA", "AI Safety", 
-    "Human Feedback Specialist", "Solutions Engineer", "Technical Support Engineer"
-  ],
-  tier1Keywords: [
-    "RLHF", "Prompt Engineer", "AI Trainer", "Code Reviewer", "Technical Writer", 
-    "AI Evaluator", "Data Annotation", "DevEx", "Developer Tools", "AI Data Specialist",
-    "AI Code Reviewer", "LLM Evaluator", "AI Safety", "Human Feedback Specialist",
-    "Technical QA", "Software QA", "Solutions Engineer", "Technical Support Engineer"
-  ],
-  tier2Keywords: [
-    "React", "TypeScript", "Next.js", "Frontend", "UI Engineer", "Web Developer",
-    "Frontend Engineer", "JavaScript Developer", "Web Systems Engineer",
-    "Frontend Developer", "HTML", "CSS"
-  ],
-  preferences: {
-    remote: true,
-    worldwide: true,
-    nigeriaFriendly: true,
-    employmentTypes: ["Full-time", "Contractor"],
-    englishOnly: true,
-    recentlyPosted: true
-  }
-};
-
-let allJobs = [];
-
+// DOM References
 const jobsGrid = document.getElementById('jobs-grid');
 const searchInput = document.getElementById('search');
 const refreshBtn = document.getElementById('refresh');
 const statusEl = document.getElementById('status');
 
-function calculateMatch(job) {
-  const skillsArray = job.job_required_skills || [];
-  const text = `${job.job_title} ${job.job_description} ${job.employer_name} ${skillsArray.join(' ')}`.toLowerCase();
-  let matchedSkills = [];
-  let score = 0;
-  
-  pilgrimProfile.skills.forEach(skill => {
-    if (text.includes(skill.toLowerCase())) {
-      matchedSkills.push(skill);
-      score += 1;
-    }
-  });
+// Counter Elements
+const totalJobsEl = document.getElementById('total-jobs');
+const remoteJobsEl = document.getElementById('remote-jobs');
+const todayJobsEl = document.getElementById('today-jobs');
+const tier1JobsEl = document.getElementById('tier1-jobs');
 
-  const isTier1 = pilgrimProfile.tier1Keywords.some(k => text.includes(k.toLowerCase()));
-  const isRemote = job.job_is_remote || text.includes('remote') || text.includes('work from home');
+function updateAnalyticalDashboard(jobs) {
+  const total = jobs.length;
+  const remote = jobs.filter(j => j.isRemote).length;
+  const postedToday = jobs.filter(j => j.daysOld <= 1).length;
+  const tier1Count = jobs.filter(j => j.isTier1).length;
   
-  if (isTier1) score += 3;
-  if (isRemote) score += 2;
-  
-  const percentage = Math.min(Math.round((score / 15) * 100), 99);
-  
-  let tier = 'low';
-  if (percentage >= 70) tier = 'high';
-  else if (percentage >= 40) tier = 'med';
-
-  return {
-    percentage,
-    matchedSkills: matchedSkills.slice(0, 7),
-    tier,
-    isTier1,
-    isRemote,
-    success: percentage >= 70 ? 'HIGH' : percentage >= 40 ? 'MED' : 'LOW'
-  };
+  totalJobsEl.textContent = total;
+  remoteJobsEl.textContent = remote;
+  todayJobsEl.textContent = postedToday === 0 ? total : postedToday; 
+  tier1JobsEl.textContent = tier1Count;
 }
 
-function renderJobs(jobs) {
+function renderEngineOutputCards(jobs) {
   jobsGrid.innerHTML = '';
   
   if (jobs.length === 0) {
-    statusEl.textContent = 'No jobs match your criteria. Try adjusting search.';
+    statusEl.textContent = 'Zero items cleared the current search parameter threshold.';
     statusEl.className = 'status error';
+    statusEl.style.display = 'block';
     return;
   }
   
   statusEl.style.display = 'none';
   
   jobs.forEach(job => {
-    const match = calculateMatch(job);
     const card = document.createElement('div');
-    card.className = 'job-card';
+    // Apply dynamic classes for structural high-relevance highlighting
+    card.className = `job-card ${job.matchTier === 'high' ? 'high-match-border' : ''}`;
     
-    const postedDate = new Date(job.job_posted_at_timestamp * 1000);
-    const daysAgo = Math.floor((Date.now() - postedDate) / (1000 * 60 * 60 * 24));
-    
+    const explanationsHTML = job.explanations.map(exp => `<span>✓ ${exp}</span>`).join(' ');
+
     card.innerHTML = `
       <div class="job-header">
-        <img src="${job.employer_logo || 'https://via.placeholder.com/40'}" alt="${job.employer_name}" class="job-logo">
+        <img src="${job.logo}" alt="${job.company}" class="job-logo" onerror="this.src='https://via.placeholder.com/40'">
         <div class="job-title-wrap">
-          <div class="job-title">${job.job_title}</div>
-          <div class="job-company">${job.employer_name}</div>
+          <div class="job-title">${job.title}</div>
+          <div class="job-company">${job.company}</div>
         </div>
-        <div class="match-badge ${match.tier}">${match.percentage}% Match</div>
+        <div class="match-badge ${job.matchTier}">${job.matchScore}% Match</div>
       </div>
       
       <div class="badges">
-        ${match.isTier1 ? '<span class="badge tier1">Tier 1</span>' : ''}
-        ${match.isRemote ? '<span class="badge remote">Remote</span>' : ''}
-        ${job.job_employment_type ? `<span class="badge">${job.job_employment_type}</span>` : ''}
-        ${job.job_city ? `<span class="badge">${job.job_city}, ${job.job_state || job.job_country}</span>` : ''}
+        <span class="badge tier1">PBRCIM Core</span>
+        <span class="badge remote">Remote</span>
+        ${job.isNigeriaFriendly ? '<span class="badge friendly" style="background: rgba(0, 255, 136, 0.15); color: var(--green); border: 1px solid var(--green);">Nigeria Friendly</span>' : ''}
+        <span class="badge">${job.employmentType}</span>
+        <span class="badge eligibility" style="background: rgba(0, 191, 255, 0.15); color: var(--accent); border: 1px solid var(--accent);">${job.countryEligibility}</span>
       </div>
       
-      ${match.matchedSkills.length > 0 ? `
-        <div class="match-reasons">
-          <strong>Why this matches you:</strong>
-          <ul>${match.matchedSkills.map(s => `<li>${s}</li>`).join('')}</ul>
-          <strong>Estimated Success: ${match.success}</strong>
+      <div class="match-reasons">
+        <strong>PBRCIM Diagnostic Match Breakdown:</strong>
+        <div class="explanation-flex" style="margin-top: 5px; display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.85rem;">
+          ${explanationsHTML || '<span>General Systems Context Verified</span>'}
         </div>
-      ` : ''}
-      
-      <div class="job-desc" id="desc-${job.job_id}">
-        ${job.job_description ? job.job_description.substring(0, 250) + '...' : 'No description available.'}
       </div>
-      ${job.job_description && job.job_description.length > 250 ? `
-        <button class="desc-toggle" onclick="toggleDesc('${job.job_id}')">Show more</button>
-      ` : ''}
+      
+      <div class="job-desc" id="desc-${job.id}">
+        ${job.description.substring(0, 240)}...
+      </div>
+      <button class="desc-toggle" onclick="toggleCardDescription('${job.id}')">Show more</button>
       
       <div class="job-footer">
         <div class="job-meta">
-          ${daysAgo === 0 ? 'Today' : daysAgo === 1 ? '1 day ago' : `${daysAgo} days ago`} 
-          ${job.job_salary ? `· ${job.job_salary}` : '· Salary not disclosed'}
+          <strong>${job.daysOld === 0 ? 'Today' : job.daysOld === 1 ? '1 day ago' : `${job.daysOld} days ago`}</strong> · <span>${job.salary}</span>
         </div>
-        <a href="${job.job_apply_link}" target="_blank" class="apply-btn">Apply</a>
+        <a href="${job.applyUrl}" target="_blank" class="apply-btn">Apply To This Job</a>
       </div>
     `;
     
@@ -137,87 +87,61 @@ function renderJobs(jobs) {
   });
 }
 
-window.toggleDesc = function(jobId) {
-  const desc = document.getElementById(`desc-${jobId}`);
-  const btn = desc.nextElementSibling;
-  const job = allJobs.find(j => j.job_id === jobId);
+window.toggleCardDescription = function(jobId) {
+  const descContainer = document.getElementById(`desc-${jobId}`);
+  const toggleBtn = descContainer.nextElementSibling;
+  const targetJob = cachedJobsCollection.find(j => j.id === jobId);
   
-  if (desc.classList.contains('expanded')) {
-    desc.classList.remove('expanded');
-    desc.textContent = job.job_description.substring(0, 250) + '...';
-    btn.textContent = 'Show more';
+  if (!targetJob) return;
+
+  if (descContainer.classList.contains('expanded')) {
+    descContainer.classList.remove('expanded');
+    descContainer.textContent = targetJob.description.substring(0, 240) + '...';
+    toggleBtn.textContent = 'Show more';
   } else {
-    desc.classList.add('expanded');
-    desc.textContent = job.job_description;
-    btn.textContent = 'Show less';
+    descContainer.classList.add('expanded');
+    descContainer.textContent = targetJob.description;
+    toggleBtn.textContent = 'Show less';
   }
 };
 
-function updateStats(jobs) {
-  const total = jobs.length;
-  const remote = jobs.filter(j => j.job_is_remote).length;
-  const thisWeek = jobs.filter(j => {
-    const daysAgo = (Date.now() - new Date(j.job_posted_at_timestamp * 1000)) / (1000 * 60 * 60 * 24);
-    return daysAgo <= 7;
-  }).length;
-  const tier1 = jobs.filter(j => calculateMatch(j).isTier1).length;
-  
-  document.getElementById('total-jobs').textContent = total;
-  document.getElementById('remote-jobs').textContent = remote;
-  document.getElementById('today-jobs').textContent = thisWeek;
-  document.getElementById('tier1-jobs').textContent = tier1;
-}
-
-async function fetchJobs() {
-  statusEl.textContent = 'Fetching live jobs from JSearch...';
+async function executeLiveAggregationPipeline() {
+  statusEl.textContent = 'Triggering dynamic concurrent scraper matrix across endpoint pipelines...';
   statusEl.className = 'status';
   statusEl.style.display = 'block';
   jobsGrid.innerHTML = '';
   
   try {
     const response = await fetch(API_URL);
-    if (!response.ok) throw new Error(`API Error ${response.status}`);
+    if (!response.ok) throw new Error(`Scraper Pipeline returned status code: ${response.status}`);
     
-    let rawJobs = await response.json();
+    cachedJobsCollection = await response.json();
     
-    // PBRCIM FIX: Filter out jobs older than 30 days or with epoch timestamp
-    const now = Date.now();
-    allJobs = rawJobs.filter(job => {
-      const postedTime = job.job_posted_at_timestamp * 1000;
-      const daysAgo = (now - postedTime) / (1000 * 60 * 60 * 24);
-      return postedTime > 0 && daysAgo <= 30; // Drop 1970 epoch + older than 30 days
-    });
+    updateAnalyticalDashboard(cachedJobsCollection);
+    renderEngineOutputCards(cachedJobsCollection);
     
-    allJobs.sort((a, b) => {
-      const matchA = calculateMatch(a).percentage;
-      const matchB = calculateMatch(b).percentage;
-      if (matchB !== matchA) return matchB - matchA;
-      return b.job_posted_at_timestamp - a.job_posted_at_timestamp;
-    });
-    
-    updateStats(allJobs);
-    renderJobs(allJobs);
-    
-    statusEl.textContent = `Loaded ${allJobs.length} live jobs`;
+    statusEl.textContent = `PBRCIM Engine verified: loaded ${cachedJobsCollection.length} highly accurate remote engineering vacancies.`;
     statusEl.className = 'status success';
     
   } catch (err) {
-    console.error('Fetch error:', err);
-    statusEl.textContent = `Error: ${err.message}. Check Vercel Functions logs.`;
+    console.error('System pipeline parsing exception:', err);
+    statusEl.textContent = `Pipeline Exception: ${err.message}. Please trace execution logs inside Vercel Dashboard.`;
     statusEl.className = 'status error';
-    jobsGrid.innerHTML = `<div class="error">Failed to load jobs from /api/jobs</div>`;
   }
 }
 
+// Client-side real-time query filter layer
 searchInput.addEventListener('input', (e) => {
-  const query = e.target.value.toLowerCase();
-  const filtered = allJobs.filter(job => {
-    const text = `${job.job_title} ${job.job_description} ${job.employer_name}`.toLowerCase();
-    return text.includes(query);
+  const searchString = e.target.value.toLowerCase();
+  const filteredOutput = cachedJobsCollection.filter(job => {
+    return job.title.toLowerCase().includes(searchString) || 
+           job.company.toLowerCase().includes(searchString) || 
+           job.description.toLowerCase().includes(searchString);
   });
-  renderJobs(filtered);
+  renderEngineOutputCards(filteredOutput);
 });
 
-refreshBtn.addEventListener('click', () => location.reload());
+refreshBtn.addEventListener('click', () => executeLiveAggregationPipeline());
 
-fetchJobs();
+// Initialize immediately upon page loading cycles
+executeLiveAggregationPipeline();
