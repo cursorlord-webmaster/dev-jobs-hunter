@@ -334,3 +334,45 @@ footer {
   .stats { grid-template-columns: 1fr; }
   h1 { font-size: 1.25rem; }
 }
+
+
+
+/* Recruiter Intelligence V4 Styling Additions */
+.recruiter-metrics-box {
+  transition: all 0.2s ease-in-out;
+}
+
+.metrics-grid div {
+  transition: background 0.2s ease;
+}
+
+/* Dynamic Border Enhancements for Immediate Scannability */
+.high-match-border {
+  border: 2px solid var(--green) !important;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
+}
+
+.disqualified-border {
+  border: 1px solid rgba(255, 68, 68, 0.3) !important;
+  opacity: 0.75;
+}
+
+.disqualified-border:hover {
+  opacity: 0.95;
+}
+
+/* Match Badge Color Logic Integration */
+.match-badge.high {
+  background: rgba(0, 255, 136, 0.15);
+  color: var(--green);
+}
+
+.match-badge.mid {
+  background: rgba(255, 165, 0, 0.15);
+  color: orange;
+}
+
+.match-badge.low {
+  background: rgba(255, 68, 68, 0.15);
+  color: #ff4444;
+}
