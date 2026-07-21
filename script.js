@@ -14,41 +14,27 @@ const remoteJobsEl = document.getElementById('remote-jobs');
 const todayJobsEl = document.getElementById('today-jobs');
 const tier1JobsEl = document.getElementById('tier1-jobs');
 
-// Robust US/Federal Exclusivity & Compliance Logic Matrix
 const US_EXCLUSIVITY_PATTERNS = [
   /u\.s\.\s*citizen/i,
   /united\s*states\s*citizenship/i,
   /security\s*clearance/i,
   /public\s*trust/i,
   /federal\s*contract/i,
-  /open\s*to\s*candidates\s*in\s*(usa|united states)/i,
   /must\s*reside\s*in\s*(usa|united states)/i,
   /us\s*work\s*authorization/i,
-  /authorized\s*to\s*work\s*in\s*the\s*u\.s/i,
-  /verification\s*of\s*(us\s*)?employment\s*eligibility/i,
   /no\s*visa\s*sponsorship/i,
-  /ineligible\s*for\s*immigration\s*sponsorship/i,
   /w2\s*only/i,
-  /h1b\s*transfer\s*only/i,
-  /green\s*card/i,
-  /lawful\s*permanent\s*resident/i
+  /green\s*card/i
 ];
 
-// Core engineering tools for technical weighting alignment calculations
 const CORE_COMPETENCIES = ['devops', 'systems engineer', 'python', 'go', 'rust', 'kubernetes', 'terraform', 'docker', 'ci/cd', 'aws', 'gcp', 'ansible', 'sre', 'automation'];
 
-/**
- * PBRCIM Intelligence Pipeline: Processes raw logs/descriptions 
- * and calculates precise weighted metadata criteria.
- */
 function processRecruiterIntelligence(job) {
   const desc = job.description || '';
+  const title = job.title || '';
   
-  // 1. Geographic Eligibility Verification Gate
-  let isUsExclusive = US_EXCLUSIVITY_PATTERNS.some(regex => regex.test(desc)) || 
-                      (job.countryEligibility && /usa|united states/i.test(job.countryEligibility));
-                      
-  // Explicitly check for global overrides in text before confirmation
+  let isUsExclusive = US_EXCLUSIVITY_PATTERNS.some(regex => regex.test(desc));
+      
   const isExplicitlyWorldwide = /worldwide|global|remote\s*from\s*anywhere/i.test(desc);
   if (isExplicitlyWorldwide && !/u\.s\.\s*citizen|security\s*clearance|public\s*trust/i.test(desc)) {
     isUsExclusive = false;
@@ -56,39 +42,33 @@ function processRecruiterIntelligence(job) {
 
   let geoScore = 100;
   if (isUsExclusive) {
-    geoScore = 0; // Absolute barrier for out-of-region pipelines
+    geoScore = 0; 
   } else if (/est|pst|mst|cst|time\s*zone/i.test(desc)) {
-    geoScore = 40; // Functional timezone constraint
+    geoScore = 40; 
   }
 
-  // 2. Technical Capabilities Match Weighting
   let totalKeywordsMatched = 0;
   CORE_COMPETENCIES.forEach(keyword => {
-    if (desc.toLowerCase().includes(keyword) || job.title.toLowerCase().includes(keyword)) {
+    if (desc.toLowerCase().includes(keyword) || title.toLowerCase().includes(keyword)) {
       totalKeywordsMatched++;
     }
   });
   const techScore = Math.round((totalKeywordsMatched / CORE_COMPETENCIES.length) * 100);
-  
-  // Normalize score baseline against your portfolio's high-performance standard
   const normalizedTechScore = Math.min(100, Math.max(40, techScore + (job.matchScore ? 20 : 0)));
 
-  // 3. Experience Target Calibration Engine
-  let experienceScore = 85; // Solid reference baseline
+  let experienceScore = 85; 
   const expMatch = desc.match(/(\d+)\s*\+\s*years|years\s*of\s*experience/i);
   if (expMatch) {
     const yearsRequired = parseInt(expMatch[1], 10);
-    if (yearsRequired <= 3) experienceScore = 95; // Accelerated profile fit
-    if (yearsRequired >= 7) experienceScore = 70; // Potential senior overhead block
+    if (yearsRequired <= 3) experienceScore = 95; 
+    if (yearsRequired >= 7) experienceScore = 70; 
   }
 
-  // 4. Deterministic Interview Probability Output
   let interviewProbability = 0;
   if (geoScore > 0) {
     interviewProbability = Math.round((normalizedTechScore * 0.5) + (geoScore * 0.3) + (experienceScore * 0.2));
   }
 
-  // Mutate elements cleanly back into the context dataset
   return {
     ...job,
     isNigeriaFriendly: !isUsExclusive,
@@ -97,7 +77,7 @@ function processRecruiterIntelligence(job) {
       techScore: normalizedTechScore,
       experienceScore,
       interviewProbability,
-      reason: isUsExclusive ? "Employer explicitly requires U.S. citizenship, clearance, or employment eligibility logs." : "Geographic eligibility and technical stack clear the matching filter."
+      reason: isUsExclusive ? "Employer explicitly requires U.S. citizenship or clearance." : "Geographic eligibility and technical stack clear the matching filter."
     }
   };
 }
@@ -130,13 +110,13 @@ function renderEngineOutputCards(jobs) {
     const card = document.createElement('div');
     const intel = job.intelligence;
     
-    // Visually flag high match probabilities or isolate hard boundary disqualifications
     let dynamicBorderClass = '';
     if (intel.interviewProbability >= 75) dynamicBorderClass = 'high-match-border';
-    if (intel.geoScore === 0) dynamicBorderClass = 'disqualified-border'; // Can style this red in your CSS framework
+    if (intel.geoScore === 0) dynamicBorderClass = 'disqualified-border';
     
     card.className = `job-card ${dynamicBorderClass}`;
-    const explanationsHTML = job.explanations.map(exp => `<span>✓ ${exp}</span>`).join(' ');
+    const explanations = Array.isArray(job.explanations) ? job.explanations : [];
+    const explanationsHTML = explanations.map(exp => `<span>✓ ${exp}</span>`).join(' ');
 
     card.innerHTML = `
       <div class="job-header">
@@ -159,7 +139,6 @@ function renderEngineOutputCards(jobs) {
         <span class="badge">${job.employmentType}</span>
       </div>
 
-      <!-- Recruiter Intelligence Engine Metrics Display -->
       <div class="recruiter-metrics-box" style="margin: 12px 0; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
         <strong style="font-size: 0.85rem; color: var(--accent);">📊 Recruiter Intelligence Scoring Matrix:</strong>
         <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; text-align: center; font-size: 0.8rem;">
@@ -237,7 +216,6 @@ async function executeLiveAggregationPipeline() {
     
     const rawData = await response.json();
     
-    // Intercept data stream and process through the Recruiter Intelligence Engine layer
     cachedJobsCollection = rawData.map(job => processRecruiterIntelligence(job));
     
     updateAnalyticalDashboard(cachedJobsCollection);
@@ -253,7 +231,6 @@ async function executeLiveAggregationPipeline() {
   }
 }
 
-// Client-side real-time query filter layer
 searchInput.addEventListener('input', (e) => {
   const searchString = e.target.value.toLowerCase();
   const filteredOutput = cachedJobsCollection.filter(job => {
@@ -266,5 +243,4 @@ searchInput.addEventListener('input', (e) => {
 
 refreshBtn.addEventListener('click', () => executeLiveAggregationPipeline());
 
-// Initialize immediately upon page loading cycles
 executeLiveAggregationPipeline();

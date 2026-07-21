@@ -6,8 +6,7 @@ const axios = require('axios');
 const CONFIG = {
   MAX_JOB_AGE_DAYS: 7,
   CACHE_TTL_MS: 20 * 60 * 1000,
-  MAX_RETRIES: 1,
-  BATCH_SIZE: 10, // Process in 4 sequential batches of 10 to beat Vercel's 10s timeout
+  MAX_RETRIES: 2,
   SEARCH_QUERIES: [
     // ===== Core Systems Engineering =====
     'remote systems engineer',
@@ -167,11 +166,16 @@ async function fetchWithRetry(query, attempt = 1) {
         'X-RapidAPI-Key': process.env.RAPID_API_KEY,
         'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
       },
-      params: { query: query, num_pages: '1' },
-      timeout: 3500
+      params: { 
+        query: query, 
+        num_pages: '1' 
+      },
+      timeout: 8000
     });
-    return res.data?.data?.jobs || [];
+    // v5 search-v2 payload safe extraction
+    return res.data?.data?.jobs || res.data?.data || [];
   } catch (err) {
+    console.error(`Fetch error on query [${query}]:`, err.message);
     if (attempt < CONFIG.MAX_RETRIES) {
       return await fetchWithRetry(query, attempt + 1);
     }
@@ -193,15 +197,8 @@ module.exports = async (req, res) => {
   }
 
   try {
-    let rawResultsArray = [];
-    
-    // Execute all 40 queries in controlled batches of 10 to prevent Vercel serverless timeouts
-    for (let i = 0; i < CONFIG.SEARCH_QUERIES.length; i += CONFIG.BATCH_SIZE) {
-      const batch = CONFIG.SEARCH_QUERIES.slice(i, i + CONFIG.BATCH_SIZE);
-      const batchResults = await Promise.all(batch.map(q => fetchWithRetry(q)));
-      rawResultsArray.push(...batchResults);
-    }
-
+    const searchPromises = CONFIG.SEARCH_QUERIES.map(q => fetchWithRetry(q));
+    const rawResultsArray = await Promise.all(searchPromises);
     let combinedJobs = rawResultsArray.flat();
 
     const uniqueMap = new Map();
@@ -229,7 +226,6 @@ module.exports = async (req, res) => {
       if (CONFIG.BLACKLIST_COMPANIES.some(blocked => companyName.toLowerCase().includes(blocked))) continue;
 
       const { isRemote, countryEligibility, isNigeriaFriendly } = parseRemoteAndCountry(rawJob);
-      if (!isRemote) continue;
 
       const evaluation = calculatePBRCIMMatch(rawJob);
 
@@ -245,7 +241,7 @@ module.exports = async (req, res) => {
         daysOld: Math.floor(daysAgo),
         salary: rawJob.job_min_salary ? `${rawJob.job_min_salary.toLocaleString()} - ${rawJob.job_max_salary?.toLocaleString() || ''} ${rawJob.job_salary_currency || 'USD'}` : 'Not Disclosed',
         location: `${rawJob.job_city || ''} ${rawJob.job_state || ''}, ${rawJob.job_country || ''}`.trim(),
-        isRemote: true,
+        isRemote: isRemote,
         countryEligibility,
         isNigeriaFriendly,
         matchScore: evaluation.percentage,
